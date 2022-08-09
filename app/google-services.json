@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "274821281922",
+    "firebase_url": "https://smart-garden-51893-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "smart-garden-51893",
+    "storage_bucket": "smart-garden-51893.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:274821281922:android:b0dec94aba96cbc2d75c9b",
+        "android_client_info": {
+          "package_name": "com.example.smartgarden"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "274821281922-j2mnnid769l15d6bpcn53mcvhevbqobl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDugjOIXtyzU5Y44tqGUNFFeTC0lA5lWPU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "274821281922-j2mnnid769l15d6bpcn53mcvhevbqobl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

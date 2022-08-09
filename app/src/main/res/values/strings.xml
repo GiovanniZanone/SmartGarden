@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Smart Garden</string>
+    <string name="Title">Smart Garden Home</string>
+    <string name="artificial_light">Artificial Light</string>
+    <string name="cooling_fan">Cooling Fan</string>
+    <string name="waterpump">Waterpump</string>
+    <string name="moisture">Moisture</string>
+    <string name="humidity">Humidity</string>
+    <string name="pressure">Pressure</string>
+    <string name="light">Light</string>
+    <string name="temperature">Temperature</string>
+    <string name="on">On</string>
+    <string name="off">Off</string>
+</resources>
