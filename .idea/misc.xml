@@ -3,6 +3,13 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/emide/AndroidStudioProjects/SmartGarden2/app/src/main/res/drawable/graph_icon.xml" value="0.37864583333333335" />
+        <entry key="..\:/Users/emide/AndroidStudioProjects/SmartGarden2/app/src/main/res/drawable/ic_chart.xml" value="0.37864583333333335" />
+        <entry key="..\:/Users/emide/AndroidStudioProjects/SmartGarden2/app/src/main/res/layout/activity_chart.xml" value="0.33" />
+        <entry key="..\:/Users/emide/AndroidStudioProjects/SmartGarden2/app/src/main/res/layout/activity_main.xml" value="0.2957427536231884" />
+        <entry key="..\:/Users/emide/AndroidStudioProjects/SmartGarden2/app/src/main/res/menu/menu.xml" value="0.25" />
+        <entry key="..\:/Users/emide/AndroidStudioProjects/SmartGarden2/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.37864583333333335" />
+        <entry key="..\:/Users/emide/AndroidStudioProjects/SmartGarden2/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.37864583333333335" />
         <entry key="..\:/Users/gioza/AndroidStudioProjects/SmartGarden/app/src/main/res/layout/activity_main.xml" value="0.33" />
       </map>
     </option>

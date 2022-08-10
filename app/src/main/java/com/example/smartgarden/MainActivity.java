@@ -3,9 +3,13 @@ package com.example.smartgarden;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Switch;
@@ -40,6 +44,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
+        myToolbar.showContextMenu();
+        myToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                if(item.getItemId()==R.id.action_favorite){
+                    Intent intent = new Intent(MainActivity.this, ChartActivity.class);
+                    startActivity(intent);
+                }
+                return false;
+            }
+        });
 
         database = FirebaseDatabase.getInstance().getReference("SmartGarden");
 
@@ -176,8 +193,6 @@ public class MainActivity extends AppCompatActivity {
                 if (Float.parseFloat(result.get("moisture")) <= 10) {
                     weatherReport.append("\n Low Moisture,better turn on the water pump!");
                 }
-
-
             }
             @Override
             public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
@@ -194,4 +209,13 @@ public class MainActivity extends AppCompatActivity {
         };
         databaseReference.addChildEventListener(childEventListener);
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+
 }

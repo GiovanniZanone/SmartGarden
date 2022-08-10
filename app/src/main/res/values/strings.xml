@@ -11,4 +11,5 @@
     <string name="temperature">Temperature</string>
     <string name="on">On</string>
     <string name="off">Off</string>
+    <string name="chart">Chart</string>
 </resources>
