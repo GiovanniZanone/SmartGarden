@@ -87,18 +87,17 @@
     <com.jjoe64.graphview.helper.GraphViewXML
         android:id="@+id/Graph"
         android:layout_width="match_parent"
-        android:layout_height="248dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
+        android:layout_height="250dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/radioGroup"
         app:layout_constraintVertical_bias="0.0"
         app:seriesColor="#ee0000"
         app:seriesData="0=0;0=0;0=0;0=0"
         app:seriesType="line" />
+
     <Spinner
         android:id="@+id/simpleSpinner"
         android:layout_width="wrap_content"
@@ -107,6 +106,7 @@
         android:minHeight="48dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/Graph" />
 
