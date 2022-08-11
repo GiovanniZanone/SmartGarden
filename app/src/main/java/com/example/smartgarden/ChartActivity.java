@@ -1,6 +1,5 @@
 package com.example.smartgarden;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -9,44 +8,26 @@ import android.widget.ArrayAdapter;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
-import com.jjoe64.graphview.DefaultLabelFormatter;
 import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.LabelFormatter;
 import com.jjoe64.graphview.Viewport;
 import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
-import java.text.DateFormat;
-import java.text.Format;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 public class ChartActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     DatabaseReference mPostReference;
     private GraphView graph;
-    private double i = 1.0;
     private LineGraphSeries<DataPoint> series_moisture;
     private LineGraphSeries<DataPoint> series_humidity;
     private LineGraphSeries<DataPoint> series_temperature;
@@ -58,11 +39,11 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chart);
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar2);
+        Toolbar myToolbar = findViewById(R.id.my_toolbar2);
         mPostReference = FirebaseDatabase.getInstance().getReference("SmartGarden");
 
         setSupportActionBar(myToolbar);
-        Spinner spinner = (Spinner) findViewById(R.id.simpleSpinner);
+        Spinner spinner = findViewById(R.id.simpleSpinner);
         // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.period_length_array, android.R.layout.simple_spinner_item);
@@ -104,37 +85,32 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
         series_pressure = new LineGraphSeries<>();
 
         DatabaseReference databaseReference = mPostReference.child("SensorsData");
-        databaseReference.limitToLast(60).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DataSnapshot> task) {
-                if (!task.isSuccessful()) {
-                    Log.e("firebase", "Error getting data", task.getException());
-                }
-                else {
-                    Log.d("firebase", String.valueOf(task.getResult().getValue()));
-                    for (DataSnapshot element : task.getResult().getChildren()) {
-                        HashMap<String, String> result = (HashMap<String, String>) element.getValue();
-                        Log.i("result", String.valueOf(result));
-                        Log.i("key", element.getKey());
+        databaseReference.limitToLast(60).get().addOnCompleteListener(task -> {
+            if (!task.isSuccessful())
+                Log.e("firebase", "Error getting data", task.getException());
+            else {
+                Log.d("firebase", String.valueOf(task.getResult().getValue()));
+                for (DataSnapshot element : task.getResult().getChildren()) {
+                    HashMap<String, String> result = (HashMap<String, String>) element.getValue();
+                    Log.i("result", String.valueOf(result));
+                    Log.i("key", element.getKey());
 
-                        series_moisture.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("moisture"))),false, 60, false);
-                        series_humidity.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("humidity"))),false, 60, false);
-                        series_temperature.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("temp"))),false, 60, false);
-                        series_light.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("light"))),false, 60, false);
-                        series_pressure.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("pressure"))),false, 60, false);
-                        graph.invalidate();
-                        graph.getViewport().scrollToEnd();
-                        i++;
-                        vp.setMaxX(series_moisture.getHighestValueX());
-                        vp.setMinX(series_moisture.getLowestValueX());
+                    series_moisture.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("moisture"))),false, 60, false);
+                    series_humidity.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("humidity"))),false, 60, false);
+                    series_temperature.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("temp"))),false, 60, false);
+                    series_light.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("light"))),false, 60, false);
+                    series_pressure.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("pressure"))),false, 60, false);
+                    graph.invalidate();
+                    graph.getViewport().scrollToEnd();
+                    vp.setMaxX(series_moisture.getHighestValueX());
+                    vp.setMinX(series_moisture.getLowestValueX());
 
-                    }
-                    graph.removeAllSeries();
-                    graph.addSeries(series_moisture);
-                    //graph.getGridLabelRenderer().setHumanRounding(false);
-                    graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getApplicationContext()));
-                    graph.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
                 }
+                graph.removeAllSeries();
+                graph.addSeries(series_moisture);
+                //graph.getGridLabelRenderer().setHumanRounding(false);
+                graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getApplicationContext()));
+                graph.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
             }
         });
     }
@@ -144,7 +120,6 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
         switch (view.getId()){
             case R.id.radioButton:
                 if(checked){
-                    Log.i("moisture chart","wewe");
                     moisture_chart();
                     break;
                 }
@@ -217,177 +192,162 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
         Object selectedItem = adapterView.getSelectedItem();
         switch (selectedItem.toString()){
             case "last hour":
-                databaseReference.limitToLast(60).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DataSnapshot> task) {
-                        if (!task.isSuccessful()) {
-                            Log.e("firebase", "Error getting data", task.getException());
-                        }
-                        else {
-                            Log.d("firebase", String.valueOf(task.getResult().getValue()));
-                            for (DataSnapshot element : task.getResult().getChildren()) {
-                                HashMap<String, String> result = (HashMap<String, String>) element.getValue();
-                                Log.i("result", String.valueOf(result));
-                                Log.i("key", element.getKey());
+                databaseReference.limitToLast(60).get().addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.e("firebase", "Error getting data", task.getException());
+                    }
+                    else {
+                        Log.d("firebase", String.valueOf(task.getResult().getValue()));
+                        for (DataSnapshot element : task.getResult().getChildren()) {
+                            HashMap<String, String> result = (HashMap<String, String>) element.getValue();
+                            Log.i("result", String.valueOf(result));
+                            Log.i("key", element.getKey());
 
-                                series_moisture.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("moisture"))),false, 60, false);
-                                series_humidity.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("humidity"))),false, 60, false);
-                                series_temperature.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("temp"))),false, 60, false);
-                                series_light.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("light"))),false, 60, false);
-                                series_pressure.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("pressure"))),false, 60, false);
-                                graph.invalidate();
-                                graph.getViewport().scrollToEnd();
-                                vp.setMaxX(series_moisture.getHighestValueX());
-                                vp.setMinX(series_moisture.getLowestValueX());
+                            series_moisture.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("moisture"))),false, 60, false);
+                            series_humidity.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("humidity"))),false, 60, false);
+                            series_temperature.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("temp"))),false, 60, false);
+                            series_light.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("light"))),false, 60, false);
+                            series_pressure.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("pressure"))),false, 60, false);
+                            graph.invalidate();
+                            graph.getViewport().scrollToEnd();
+                            vp.setMaxX(series_moisture.getHighestValueX());
+                            vp.setMinX(series_moisture.getLowestValueX());
 
-                            }
-                            graph.removeAllSeries();
-                            elementSelected.setChecked(true);
-                            graph.addSeries(series_moisture);
-                            //graph.getGridLabelRenderer().setHumanRounding(false);
-                            graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getApplicationContext()));
-                            graph.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
                         }
+                        graph.removeAllSeries();
+                        elementSelected.setChecked(true);
+                        graph.addSeries(series_moisture);
+                        //graph.getGridLabelRenderer().setHumanRounding(false);
+                        graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getApplicationContext()));
+                        graph.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
                     }
                 });
                 break;
             case "last six hours":
-                databaseReference.limitToLast(360).orderByKey().get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DataSnapshot> task) {
-                        if (!task.isSuccessful()) {
-                            Log.e("firebase", "Error getting data", task.getException());
-                        }
-                        else {
-                            Log.d("firebase", String.valueOf(task.getResult().getValue()));
-                            for (DataSnapshot element : task.getResult().getChildren()) {
-                                HashMap<String, String> result = (HashMap<String, String>) element.getValue();
-                                Log.i("result", String.valueOf(result));
-                                Log.i("key", element.getKey());
+                databaseReference.limitToLast(360).orderByKey().get().addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.e("firebase", "Error getting data", task.getException());
+                    }
+                    else {
+                        Log.d("firebase", String.valueOf(task.getResult().getValue()));
+                        for (DataSnapshot element : task.getResult().getChildren()) {
+                            HashMap<String, String> result = (HashMap<String, String>) element.getValue();
+                            Log.i("result", String.valueOf(result));
+                            Log.i("key", element.getKey());
 
-                                series_moisture.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("moisture"))),false, 360, false);
-                                series_humidity.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("humidity"))),false, 360, false);
-                                series_temperature.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("temp"))),false, 360, false);
-                                series_light.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("light"))),false, 360, false);
-                                series_pressure.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("pressure"))),false, 360, false);
-                                graph.invalidate();
-                                graph.getViewport().scrollToEnd();
-                                vp.setMaxX(series_moisture.getHighestValueX());
-                                vp.setMinX(series_moisture.getLowestValueX());
+                            series_moisture.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("moisture"))),false, 360, false);
+                            series_humidity.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("humidity"))),false, 360, false);
+                            series_temperature.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("temp"))),false, 360, false);
+                            series_light.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("light"))),false, 360, false);
+                            series_pressure.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("pressure"))),false, 360, false);
+                            graph.invalidate();
+                            graph.getViewport().scrollToEnd();
+                            vp.setMaxX(series_moisture.getHighestValueX());
+                            vp.setMinX(series_moisture.getLowestValueX());
 
-                            }
-                            graph.removeAllSeries();
-                            elementSelected.setChecked(true);
-                            graph.addSeries(series_moisture);
-                            //graph.getGridLabelRenderer().setHumanRounding(false);
-                            graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getApplicationContext()));
-                            graph.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
                         }
+                        graph.removeAllSeries();
+                        elementSelected.setChecked(true);
+                        graph.addSeries(series_moisture);
+                        //graph.getGridLabelRenderer().setHumanRounding(false);
+                        graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getApplicationContext()));
+                        graph.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
                     }
                 });
                 break;
             case "last day":
-                databaseReference.limitToLast(1440).orderByKey().get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DataSnapshot> task) {
-                        if (!task.isSuccessful()) {
-                            Log.e("firebase", "Error getting data", task.getException());
-                        }
-                        else {
-                            Log.d("firebase", String.valueOf(task.getResult().getValue()));
-                            for (DataSnapshot element : task.getResult().getChildren()) {
-                                HashMap<String, String> result = (HashMap<String, String>) element.getValue();
-                                Log.i("result", String.valueOf(result));
-                                Log.i("key", element.getKey());
+                databaseReference.limitToLast(1440).orderByKey().get().addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.e("firebase", "Error getting data", task.getException());
+                    }
+                    else {
+                        Log.d("firebase", String.valueOf(task.getResult().getValue()));
+                        for (DataSnapshot element : task.getResult().getChildren()) {
+                            HashMap<String, String> result = (HashMap<String, String>) element.getValue();
+                            Log.i("result", String.valueOf(result));
+                            Log.i("key", element.getKey());
 
-                                series_moisture.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("moisture"))),false, 1440, false);
-                                series_humidity.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("humidity"))),false, 1440, false);
-                                series_temperature.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("temp"))),false, 1440, false);
-                                series_light.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("light"))),false, 1440, false);
-                                series_pressure.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("pressure"))),false, 1440, false);
-                                graph.invalidate();
-                                graph.getViewport().scrollToEnd();
-                                vp.setMaxX(series_moisture.getHighestValueX());
-                                vp.setMinX(series_moisture.getLowestValueX());
+                            series_moisture.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("moisture"))),false, 1440, false);
+                            series_humidity.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("humidity"))),false, 1440, false);
+                            series_temperature.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("temp"))),false, 1440, false);
+                            series_light.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("light"))),false, 1440, false);
+                            series_pressure.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("pressure"))),false, 1440, false);
+                            graph.invalidate();
+                            graph.getViewport().scrollToEnd();
+                            vp.setMaxX(series_moisture.getHighestValueX());
+                            vp.setMinX(series_moisture.getLowestValueX());
 
-                            }
-                            graph.removeAllSeries();
-                            elementSelected.setChecked(true);
-                            graph.addSeries(series_moisture);
-                            //graph.getGridLabelRenderer().setHumanRounding(false);
-                            graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getApplicationContext()));
-                            graph.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
                         }
+                        graph.removeAllSeries();
+                        elementSelected.setChecked(true);
+                        graph.addSeries(series_moisture);
+                        //graph.getGridLabelRenderer().setHumanRounding(false);
+                        graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getApplicationContext()));
+                        graph.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
                     }
                 });
                 break;
             case "last week":
-                databaseReference.limitToLast(10080).orderByKey().get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DataSnapshot> task) {
-                        if (!task.isSuccessful()) {
-                            Log.e("firebase", "Error getting data", task.getException());
-                        }
-                        else {
-                            Log.d("firebase", String.valueOf(task.getResult().getValue()));
-                            for (DataSnapshot element : task.getResult().getChildren()) {
-                                HashMap<String, String> result = (HashMap<String, String>) element.getValue();
-                                Log.i("result", String.valueOf(result));
-                                Log.i("key", element.getKey());
+                databaseReference.limitToLast(10080).orderByKey().get().addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.e("firebase", "Error getting data", task.getException());
+                    }
+                    else {
+                        Log.d("firebase", String.valueOf(task.getResult().getValue()));
+                        for (DataSnapshot element : task.getResult().getChildren()) {
+                            HashMap<String, String> result = (HashMap<String, String>) element.getValue();
+                            Log.i("result", String.valueOf(result));
+                            Log.i("key", element.getKey());
 
-                                series_moisture.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("moisture"))),false, 10080, false);
-                                series_humidity.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("humidity"))),false, 10080, false);
-                                series_temperature.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("temp"))),false, 10080, false);
-                                series_light.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("light"))),false, 10080, false);
-                                series_pressure.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("pressure"))),false, 10080, false);
-                                graph.invalidate();
-                                graph.getViewport().scrollToEnd();
-                                vp.setMaxX(series_moisture.getHighestValueX());
-                                vp.setMinX(series_moisture.getLowestValueX());
+                            series_moisture.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("moisture"))),false, 10080, false);
+                            series_humidity.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("humidity"))),false, 10080, false);
+                            series_temperature.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("temp"))),false, 10080, false);
+                            series_light.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("light"))),false, 10080, false);
+                            series_pressure.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("pressure"))),false, 10080, false);
+                            graph.invalidate();
+                            graph.getViewport().scrollToEnd();
+                            vp.setMaxX(series_moisture.getHighestValueX());
+                            vp.setMinX(series_moisture.getLowestValueX());
 
-                            }
-                            graph.removeAllSeries();
-                            elementSelected.setChecked(true);
-                            graph.addSeries(series_moisture);
-                            //graph.getGridLabelRenderer().setHumanRounding(false);
-                            graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getApplicationContext()));
-                            graph.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
                         }
+                        graph.removeAllSeries();
+                        elementSelected.setChecked(true);
+                        graph.addSeries(series_moisture);
+                        //graph.getGridLabelRenderer().setHumanRounding(false);
+                        graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getApplicationContext()));
+                        graph.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
                     }
                 });
                 break;
             case "last month":
-                databaseReference.limitToLast(43800).orderByKey().get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DataSnapshot> task) {
-                        if (!task.isSuccessful()) {
-                            Log.e("firebase", "Error getting data", task.getException());
-                        }
-                        else {
-                            Log.d("firebase", String.valueOf(task.getResult().getValue()));
-                            for (DataSnapshot element : task.getResult().getChildren()) {
-                                HashMap<String, String> result = (HashMap<String, String>) element.getValue();
-                                Log.i("result", String.valueOf(result));
-                                Log.i("key", element.getKey());
+                databaseReference.limitToLast(43800).orderByKey().get().addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.e("firebase", "Error getting data", task.getException());
+                    }
+                    else {
+                        Log.d("firebase", String.valueOf(task.getResult().getValue()));
+                        for (DataSnapshot element : task.getResult().getChildren()) {
+                            HashMap<String, String> result = (HashMap<String, String>) element.getValue();
+                            Log.i("result", String.valueOf(result));
+                            Log.i("key", element.getKey());
 
-                                series_moisture.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("moisture"))),false, 43800, false);
-                                series_humidity.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("humidity"))),false, 43800, false);
-                                series_temperature.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("temp"))),false, 43800, false);
-                                series_light.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("light"))),false, 43800, false);
-                                series_pressure.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("pressure"))),false, 43800, false);
-                                graph.invalidate();
-                                graph.getViewport().scrollToEnd();
-                                vp.setMaxX(series_moisture.getHighestValueX());
-                                vp.setMinX(series_moisture.getLowestValueX());
+                            series_moisture.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("moisture"))),false, 43800, false);
+                            series_humidity.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("humidity"))),false, 43800, false);
+                            series_temperature.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("temp"))),false, 43800, false);
+                            series_light.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("light"))),false, 43800, false);
+                            series_pressure.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("pressure"))),false, 43800, false);
+                            graph.invalidate();
+                            graph.getViewport().scrollToEnd();
+                            vp.setMaxX(series_moisture.getHighestValueX());
+                            vp.setMinX(series_moisture.getLowestValueX());
 
-                            }
-                            graph.removeAllSeries();
-                            elementSelected.setChecked(true);
-                            graph.addSeries(series_moisture);
-                            //graph.getGridLabelRenderer().setHumanRounding(false);
-                            graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getApplicationContext()));
-                            graph.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
                         }
+                        graph.removeAllSeries();
+                        elementSelected.setChecked(true);
+                        graph.addSeries(series_moisture);
+                        //graph.getGridLabelRenderer().setHumanRounding(false);
+                        graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getApplicationContext()));
+                        graph.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
                     }
                 });
                 break;

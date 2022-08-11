@@ -44,18 +44,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        Toolbar myToolbar =findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
         myToolbar.showContextMenu();
-        myToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                if(item.getItemId()==R.id.action_favorite){
-                    Intent intent = new Intent(MainActivity.this, ChartActivity.class);
-                    startActivity(intent);
-                }
-                return false;
+        myToolbar.setOnMenuItemClickListener(item -> {
+            if(item.getItemId()==R.id.action_favorite){
+                Intent intent = new Intent(MainActivity.this, ChartActivity.class);
+                startActivity(intent);
             }
+            return false;
         });
 
         database = FirebaseDatabase.getInstance().getReference("SmartGarden");
@@ -72,45 +69,36 @@ public class MainActivity extends AppCompatActivity {
         pressureValue = findViewById(R.id.textViewPressure2);
         weatherReport = findViewById(R.id.textViewHome);
 
-        lightSwitch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(lightSwitch.isChecked()){
-                    database.child("Devices").child("light").setValue(true);
-                    lightSwitch.setText("On");
-                }
-                else{
-                    database.child("Devices").child("light").setValue(false);
-                    lightSwitch.setText("Off");
-                }
+        lightSwitch.setOnClickListener(view -> {
+            if(lightSwitch.isChecked()){
+                database.child("Devices").child("light").setValue(true);
+                lightSwitch.setText("On");
+            }
+            else{
+                database.child("Devices").child("light").setValue(false);
+                lightSwitch.setText("Off");
             }
         });
 
-        fanSwitch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(fanSwitch.isChecked()){
-                    database.child("Devices").child("fan").setValue(true);
-                    fanSwitch.setText("On");
-                }
-                else{
-                    database.child("Devices").child("fan").setValue(false);
-                    fanSwitch.setText("Off");
-                }
+        fanSwitch.setOnClickListener(view -> {
+            if(fanSwitch.isChecked()){
+                database.child("Devices").child("fan").setValue(true);
+                fanSwitch.setText("On");
+            }
+            else{
+                database.child("Devices").child("fan").setValue(false);
+                fanSwitch.setText("Off");
             }
         });
 
-        pumpSwitch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(pumpSwitch.isChecked()){
-                    database.child("Devices").child("pump").setValue(true);
-                    pumpSwitch.setText("On");
-                }
-                else{
-                    database.child("Devices").child("pump").setValue(false);
-                    pumpSwitch.setText("Off");
-                }
+        pumpSwitch.setOnClickListener(view -> {
+            if(pumpSwitch.isChecked()){
+                database.child("Devices").child("pump").setValue(true);
+                pumpSwitch.setText("On");
+            }
+            else{
+                database.child("Devices").child("pump").setValue(false);
+                pumpSwitch.setText("Off");
             }
         });
 
@@ -119,39 +107,36 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startVerifyStatusSensor(){
-        database.child("Devices").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DataSnapshot> task) {
-                if (!task.isSuccessful()) {
-                    Log.e("firebase", "Error getting data", task.getException());
+        database.child("Devices").get().addOnCompleteListener(task -> {
+            if (!task.isSuccessful()) {
+                Log.e("firebase", "Error getting data", task.getException());
+            }
+            else {
+                Log.d("firebase", String.valueOf(task.getResult().getValue()));
+                HashMap<String, Boolean> check_key = (HashMap<String, Boolean>) task.getResult().getValue();
+                if(check_key.get("light")){
+                    lightSwitch.setText("On");
+                    lightSwitch.setChecked(true);
                 }
                 else {
-                    Log.d("firebase", String.valueOf(task.getResult().getValue()));
-                    HashMap<String, Boolean> check_key = (HashMap<String, Boolean>) task.getResult().getValue();
-                    if(check_key.get("light")){
-                        lightSwitch.setText("On");
-                        lightSwitch.setChecked(true);
-                    }
-                    else {
-                        lightSwitch.setText("Off");
-                        lightSwitch.setChecked(false);
-                    }
-                    if(check_key.get("fan")){
-                        fanSwitch.setText("On");
-                        fanSwitch.setChecked(true);
-                    }
-                    else{
-                        fanSwitch.setText("Off");
-                        fanSwitch.setChecked(false);
-                    }
-                    if(check_key.get("pump")){
-                        pumpSwitch.setText("On");
-                        pumpSwitch.setChecked(true);
-                    }
-                    else{
-                        pumpSwitch.setText("Off");
-                        pumpSwitch.setChecked(false);
-                    }
+                    lightSwitch.setText("Off");
+                    lightSwitch.setChecked(false);
+                }
+                if(check_key.get("fan")){
+                    fanSwitch.setText("On");
+                    fanSwitch.setChecked(true);
+                }
+                else{
+                    fanSwitch.setText("Off");
+                    fanSwitch.setChecked(false);
+                }
+                if(check_key.get("pump")){
+                    pumpSwitch.setText("On");
+                    pumpSwitch.setChecked(true);
+                }
+                else{
+                    pumpSwitch.setText("Off");
+                    pumpSwitch.setChecked(false);
                 }
             }
         });
