@@ -2,11 +2,10 @@
 #include <Arduino_MKRIoTCarrier.h>
 #include <ArduinoJson.h>
 
-/* fill with your credentials before use */
-#define FIREBASE_HOST ""
-#define FIREBASE_AUTH ""
-#define WIFI_SSID ""
-#define WIFI_PASSWORD ""
+#define FIREBASE_HOST "smart-garden-51893-default-rtdb.europe-west1.firebasedatabase.app"
+#define FIREBASE_AUTH "C7ygfjzSv156ealnMhjTWx67fbLxZQoubNlEWMrU"
+#define WIFI_SSID "Telecom-89544077"
+#define WIFI_PASSWORD "Z8QAhtQY5BOpE0YMbZkGeVB8"
 
 //Variables declaration
 MKRIoTCarrier carrier;
@@ -27,22 +26,23 @@ int light;
 int moisture;
 bool artificial_light = false;
 bool cooling_fan = false;
-;
 bool waterpump = false;
-;
 
-// Variable to save current epoch time
+// Variable to save current epoch time and last update time
 unsigned long epochTime;
+unsigned long lastUpdate = 0;
 
 String path = "/SmartGarden";  //Base path to Firebase Realtime Database
-String jsonStr;
+String jsonStr;                // json to send to Firebase
 
 //Define Firebase data object
 FirebaseData firebaseData;
 
 //Functions declaration
+//function to check actuators state
 void checkChanges() {
   Serial.println("Getting devices status");
+  //get actuators state from Firebase databse
   if (Firebase.getJSON(firebaseData, path + "/Devices")) {
     Serial.println("Read result");
     Serial.println("PATH: " + firebaseData.dataPath());
@@ -62,9 +62,11 @@ void checkChanges() {
   }
 }
 
+//set change in waterpump state
 void onWaterpumpChange() {
   if (waterpump == true) {
     carrier.Relay2.open();
+    Serial.println(firebaseData.jsonData());
     waterPumpState = "PUMP: ON";
   } else {
     carrier.Relay2.close();
@@ -72,6 +74,7 @@ void onWaterpumpChange() {
   }
 }
 
+//set change in cooling fan state
 void onCoolingFanChange() {
   if (cooling_fan == true) {
     carrier.Relay1.open();
@@ -82,6 +85,7 @@ void onCoolingFanChange() {
   }
 }
 
+//set change in artificial light state
 void onArtificialLightChange() {
   if (artificial_light == true) {
     carrier.leds.fill(lightsOn, 0, 5);
@@ -140,9 +144,13 @@ void setup() {
   //Connecting to Firebase
 
   Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH, WIFI_SSID, WIFI_PASSWORD);
+  delay(2000);
+  Firebase.reconnectWiFi(true);
 }
 
 void loop() {
+  //reconnect to wifi if connection lost
+  Firebase.reconnectWiFi(true);
   //listen to buttons
   carrier.Buttons.update();
 
@@ -195,7 +203,6 @@ void loop() {
     carrier.display.print("Light: ");
     carrier.display.print(light);
     carrier.display.print(" Lux");
-
   }
 
   if (carrier.Buttons.getTouch(TOUCH3)) {
@@ -207,7 +214,6 @@ void loop() {
     carrier.display.print("Pressure: ");
     carrier.display.print(pressure);
     carrier.display.print("kPa");
-
   }
 
   if (carrier.Buttons.getTouch(TOUCH4)) {
@@ -225,28 +231,32 @@ void loop() {
   //getting current time
   epochTime = WiFi.getTime();
   delay(1000);
+
   Serial.println("------------------------------------------------------------------------------------");
   //--------------------------  Sending data to Database -----------------------------
-
-
-  Serial.println("Sending current values to database");
-
-  // Start a new line
-  Serial.println();
-  String json = "{\"pressure\":\"" + String(pressure) + "\",\"humidity\":\"" + String(humidity) + "\",\"temp\":\"" + String(temperature) + "\",\"light\":\"" + String(light) + "\",\"moisture\":\"" + String(moisture) + "\"}";
-  Serial.println(json);
-
-  if (Firebase.setJSON(firebaseData, path + "/SensorsData/" + String(epochTime), json)) {
-    Serial.println("Inserted");
-    Serial.println("PATH: " + firebaseData.dataPath());
-    Serial.println("TYPE: " + firebaseData.dataType());
-    Serial.print("VALUE: ");
-    if (firebaseData.dataType() == "json")
-      Serial.println(firebaseData.jsonData());
-  } else {
-    Serial.println("ERROR : " + firebaseData.errorReason());
+  //send every 60 seconds
+  if (epochTime - lastUpdate > 60) {
+    Serial.println("Sending current values to database");
     Serial.println();
+    //preparing json string
+    String json = "{\"pressure\":\"" + String(pressure) + "\",\"humidity\":\"" + String(humidity) + "\",\"temp\":\"" + String(temperature) + "\",\"light\":\"" + String(light) + "\",\"moisture\":\"" + String(moisture) + "\"}";
+    Serial.println(json);
+    //send json to Firebase database
+    if (Firebase.setJSON(firebaseData, path + "/SensorsData/" + String(epochTime), json)) {
+      Serial.println("Inserted");
+      Serial.println("PATH: " + firebaseData.dataPath());
+      Serial.println("TYPE: " + firebaseData.dataType());
+      Serial.print("VALUE: ");
+      //update last update if successful
+      lastUpdate = epochTime;
+      if (firebaseData.dataType() == "json")
+        Serial.println(firebaseData.jsonData());
+    } else {
+      Serial.println("ERROR : " + firebaseData.errorReason());
+      Serial.println();
+    }
   }
+  //check for changes in waterpump,fan and light
   checkChanges();
   onWaterpumpChange();
   onCoolingFanChange();
@@ -281,7 +291,6 @@ void testtriangles() {
   }
   setText();
 }
-
 void testroundrects() {
   carrier.display.fillScreen(ST77XX_BLACK);
   uint16_t color = 100;
