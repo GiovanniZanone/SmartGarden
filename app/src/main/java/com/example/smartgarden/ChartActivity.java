@@ -6,7 +6,9 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,6 +36,7 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
     private LineGraphSeries<DataPoint> series_light;
     private LineGraphSeries<DataPoint> series_pressure;
     private RadioButton elementSelected;
+    private RadioGroup radioGroup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +63,7 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
         //select moisture
         elementSelected=findViewById(R.id.radioButton);
         elementSelected.setChecked(true);
+        radioGroup=findViewById(R.id.radioGroup);
 
         graph = findViewById(R.id.Graph);
         Viewport vp = graph.getViewport();
@@ -221,8 +225,7 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
 
                         }
                         graph.removeAllSeries();
-                        elementSelected.setChecked(true);
-                        graph.addSeries(series_moisture);
+                        addchart();
                         //graph.getGridLabelRenderer().setHumanRounding(false);
                         graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getApplicationContext()));
                         graph.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
@@ -253,8 +256,7 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
 
                         }
                         graph.removeAllSeries();
-                        elementSelected.setChecked(true);
-                        graph.addSeries(series_moisture);
+                        addchart();
                         //graph.getGridLabelRenderer().setHumanRounding(false);
                         graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getApplicationContext()));
                         graph.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
@@ -285,8 +287,7 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
 
                         }
                         graph.removeAllSeries();
-                        elementSelected.setChecked(true);
-                        graph.addSeries(series_moisture);
+                        addchart();
                         //graph.getGridLabelRenderer().setHumanRounding(false);
                         graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getApplicationContext()));
                         graph.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
@@ -317,8 +318,7 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
 
                         }
                         graph.removeAllSeries();
-                        elementSelected.setChecked(true);
-                        graph.addSeries(series_moisture);
+                        addchart();
                         //graph.getGridLabelRenderer().setHumanRounding(false);
                         graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getApplicationContext()));
                         graph.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
@@ -349,8 +349,7 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
 
                         }
                         graph.removeAllSeries();
-                        elementSelected.setChecked(true);
-                        graph.addSeries(series_moisture);
+                        addchart();
                         //graph.getGridLabelRenderer().setHumanRounding(false);
                         graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getApplicationContext()));
                         graph.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
@@ -359,6 +358,21 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
                 break;
         }
 
+    }
+
+    private void addchart() {
+
+            elementSelected=radioGroup.findViewById(radioGroup.getCheckedRadioButtonId());
+            if(elementSelected.getText().toString().equals("Moisture"))
+                moisture_chart();
+            else if (elementSelected.getText().toString().equals("Humidity"))
+                humidity_chart();
+            else if (elementSelected.getText().toString().equals("Temperature"))
+                temperature_chart();
+            else if (elementSelected.getText().toString().equals("Light"))
+                light_chart();
+            else
+                pressure_chart();
     }
 
     @Override
