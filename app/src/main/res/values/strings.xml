@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Smart Garden</string>
     <string name="Title">Smart Garden Home</string>
@@ -12,4 +13,12 @@
     <string name="on">On</string>
     <string name="off">Off</string>
     <string name="chart">Chart</string>
+    <string name="graph_charts">Graph Charts</string>
+    <string-array name="period_length_array">
+        <item>last hour</item>
+        <item>last six hours</item>
+        <item>last day</item>
+        <item>last week</item>
+        <item>last month</item>
+    </string-array>
 </resources>
