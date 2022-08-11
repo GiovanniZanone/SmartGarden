@@ -108,7 +108,8 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
                 }
                 graph.removeAllSeries();
                 graph.addSeries(series_moisture);
-                //graph.getGridLabelRenderer().setHumanRounding(false);
+                graph.getGridLabelRenderer().setVerticalAxisTitle("moisture %");
+                graph.getGridLabelRenderer().setHorizontalAxisTitle("time");
                 graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getApplicationContext()));
                 graph.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
             }
@@ -148,30 +149,35 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
 
     public void moisture_chart(){
         graph.removeAllSeries();
+        graph.getGridLabelRenderer().setVerticalAxisTitle("moisture %");
         graph.addSeries(series_moisture);
 
     }
 
     private void humidity_chart() {
         graph.removeAllSeries();
+        graph.getGridLabelRenderer().setVerticalAxisTitle("humidity %");
         graph.addSeries(series_humidity);
 
     }
 
     private void temperature_chart() {
         graph.removeAllSeries();
+        graph.getGridLabelRenderer().setVerticalAxisTitle("temperature in °C");
         graph.addSeries(series_temperature);
 
     }
 
     private void light_chart() {
         graph.removeAllSeries();
+        graph.getGridLabelRenderer().setVerticalAxisTitle("lihgt in Lux");
         graph.addSeries(series_light);
 
     }
 
     private void pressure_chart() {
         graph.removeAllSeries();
+        graph.getGridLabelRenderer().setVerticalAxisTitle("pressure in kPa");
         graph.addSeries(series_pressure);
     }
 
