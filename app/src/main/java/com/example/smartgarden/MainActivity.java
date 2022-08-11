@@ -1,19 +1,17 @@
 package com.example.smartgarden;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -156,28 +154,7 @@ public class MainActivity extends AppCompatActivity {
                 lightValue.setText(result.get("light") +"Lux");
                 tempValue.setText(result.get("temp") +"°C");
                 pressureValue.setText(result.get("pressure") +"kPa");
-                if (Float.parseFloat(result.get("humidity")) >= 60 && Float.parseFloat(result.get("temp")) >= 15) {
-                     weatherReport.setText("It is very humid outside");
-                }else if (Float.parseFloat(result.get("temp")) >= 18 && (Float.parseFloat(result.get("light")) >= 700)) {
-                    weatherReport.setText("Warm and sunny");
-                }else if (Float.parseFloat(result.get("temp")) >= 18 && (Float.parseFloat(result.get("light")) < 700)) {
-                    weatherReport.setText("Warm and cloudy");
-                }else if (Float.parseFloat(result.get("temp")) < 18 && (Float.parseFloat(result.get("light")) >= 700)) {
-                    weatherReport.setText("A little cold, but sunny outside");
-                }else if (Float.parseFloat(result.get("temp")) < 18 && (Float.parseFloat(result.get("light")) < 700)) {
-                    weatherReport.setText("A little cold and cloudy");
-                }else{
-                    weatherReport.setText("Weather is normal");
-                }
-                if (Float.parseFloat(result.get("humidity")) >= 60) {
-                    weatherReport.append("\n High humidity,better turn on the fan!");
-                }
-                if (Float.parseFloat(result.get("light")) <= 100) {
-                    weatherReport.append("\n Low Light,better turn on the lights!");
-                }
-                if (Float.parseFloat(result.get("moisture")) <= 10) {
-                    weatherReport.append("\n Low Moisture,better turn on the water pump!");
-                }
+                ZambrettiWeatherForecating(Double.valueOf(result.get("pressure")),Float.valueOf(snapshot.getKey()),result);
             }
             @Override
             public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
@@ -193,6 +170,147 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         databaseReference.addChildEventListener(childEventListener);
+    }
+
+    String resForecast;
+    private void ZambrettiWeatherForecating(Double pressure,Float key,HashMap<String, String> result) {
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("SmartGarden").child("SensorsData");
+        databaseReference.endAt(key-10800).limitToLast(1).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if (!task.isSuccessful())
+                    Log.e("firebase", "Error getting data", task.getException());
+                else {
+                    Log.d("firebase", String.valueOf(task.getResult().getValue()));
+                    for (DataSnapshot element : task.getResult().getChildren()) {
+                        HashMap<String, String> result = (HashMap<String, String>) element.getValue();
+                        Float oldPressure = Float.parseFloat(result.get("pressure"));
+                        Log.d("oldPressure", String.valueOf(oldPressure));
+                        Integer forecast;
+                        String weatherForecast=null;
+                        if (oldPressure - pressure > 0.16) {
+                            forecast = (int) Math.round(127 - 0.12 * pressure*10);
+                            switch (forecast) {
+                                case 1:
+                                    weatherForecast = "Settled fine";
+                                    break;
+                                case 2:
+                                    weatherForecast = "Fine Weather";
+                                    break;
+                                case 3:
+                                    weatherForecast = "Fine, Becoming Less Settled";
+                                    break;
+                                case 4:
+                                    weatherForecast = "Fairly Fine, Showery Later";
+                                    break;
+                                case 5:
+                                    weatherForecast = "Showery, Becoming More Unsettled";
+                                    break;
+                                case 6:
+                                    weatherForecast = "Unsettled, Rain Later";
+                                    break;
+                                case 7:
+                                    weatherForecast = "Rain at Times, Worse Later";
+                                    break;
+                                case 8:
+                                    weatherForecast = "Rain at Times, Becoming Very Unsettled";
+                                    break;
+                                case 9:
+                                    weatherForecast = "Very Unsettled, Rain";
+                                    break;
+                            }
+                        } else if (pressure - oldPressure > 0.16) {
+                            forecast = (int) Math.round(185 - 0.16 * pressure*10);
+                            switch (forecast) {
+                                case 20:
+                                    weatherForecast = "Settled fine";
+                                    break;
+                                case 21:
+                                    weatherForecast = "Fine Weather";
+                                    break;
+                                case 22:
+                                    weatherForecast = "Becoming Fine";
+                                    break;
+                                case 23:
+                                    weatherForecast = "Fairly Fine, Improving";
+                                    break;
+                                case 24:
+                                    weatherForecast = "Fairly Fine, Possibly Showers Early";
+                                    break;
+                                case 25:
+                                    weatherForecast = "Showery Early, Improving";
+                                    break;
+                                case 26:
+                                    weatherForecast = "Changeable, Mending";
+                                    break;
+                                case 27:
+                                    weatherForecast = "Rather Unsettled, Clearing Later";
+                                    break;
+                                case 28:
+                                    weatherForecast = "Unsettled, Probably Improving";
+                                    break;
+                                case 29:
+                                    weatherForecast = "Unsettled, Short Fine Intervals";
+                                    break;
+                                case 30:
+                                    weatherForecast = "Very Unsettled, Finer at Times";
+                                    break;
+                                case 31:
+                                    weatherForecast = "Stormy, Possibly Improving";
+                                    break;
+                                case 32:
+                                    weatherForecast = "Stormy, Much Rain\n";
+                                    break;
+                            }
+                        } else {
+                            forecast = (int) Math.round(144 - 0.13 * pressure*10);
+                            switch (forecast) {
+                                case 10:
+                                    weatherForecast = "Settled fine";
+                                    break;
+                                case 11:
+                                    weatherForecast = "Fine Weather";
+                                    break;
+                                case 12:
+                                    weatherForecast = "Fine, Possibly Showers";
+                                    break;
+                                case 13:
+                                    weatherForecast = "Fairly Fine, Showers Likely";
+                                    break;
+                                case 14:
+                                    weatherForecast = "Showery, Bright Intervals";
+                                    break;
+                                case 15:
+                                    weatherForecast = "Changeable, Some Rain";
+                                    break;
+                                case 16:
+                                    weatherForecast = "Unsettled, Rain at Times";
+                                    break;
+                                case 17:
+                                    weatherForecast = "Rain at Frequent Intervals";
+                                    break;
+                                case 18:
+                                    weatherForecast = "Very Unsettled, Rain";
+                                    break;
+                                case 19:
+                                    weatherForecast = "Stormy, Much Rain";
+                                    break;
+                            }
+                        }
+                        weatherReport.setText(weatherForecast);
+                        if (Float.parseFloat(result.get("humidity")) >= 60) {
+                            weatherReport.append("\n High humidity,better turn on the fan!");
+                        }
+                        if (Float.parseFloat(result.get("light")) <= 100) {
+                            weatherReport.append("\n Low Light,better turn on the lights!");
+                        }
+                        if (Float.parseFloat(result.get("moisture")) <= 10) {
+                            weatherReport.append("\n Low Moisture,better turn on the water pump!");
+                        }
+                    }
+                }
+            }
+        });
     }
 
     @Override

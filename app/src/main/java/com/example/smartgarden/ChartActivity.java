@@ -17,12 +17,15 @@ import androidx.appcompat.widget.Toolbar;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.jjoe64.graphview.DefaultLabelFormatter;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.Viewport;
 import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -78,15 +81,15 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
         vp.setScrollableY(true);
 
         graph.getGridLabelRenderer().setHorizontalLabelsAngle(120);
-        series_moisture = new LineGraphSeries<>();
+        series_moisture = new LineGraphSeries<DataPoint>();
 
-        series_humidity = new LineGraphSeries<>();
+        series_humidity = new LineGraphSeries<DataPoint>();
 
-        series_temperature = new LineGraphSeries<>();
+        series_temperature = new LineGraphSeries<DataPoint>();
 
-        series_light = new LineGraphSeries<>();
+        series_light = new LineGraphSeries<DataPoint>();
 
-        series_pressure = new LineGraphSeries<>();
+        series_pressure = new LineGraphSeries<DataPoint>();
 
         DatabaseReference databaseReference = mPostReference.child("SensorsData");
         databaseReference.limitToLast(60).get().addOnCompleteListener(task -> {
@@ -98,12 +101,12 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
                     HashMap<String, String> result = (HashMap<String, String>) element.getValue();
                     Log.i("result", String.valueOf(result));
                     Log.i("key", element.getKey());
-
-                    series_moisture.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("moisture"))),false, 60, false);
-                    series_humidity.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("humidity"))),false, 60, false);
-                    series_temperature.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("temp"))),false, 60, false);
-                    series_light.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("light"))),false, 60, false);
-                    series_pressure.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("pressure"))),false, 60, false);
+                    Date currentDate=new Date(Long.valueOf(element.getKey())*1000);
+                    series_moisture.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("moisture"))),false, 60, false);
+                    series_humidity.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("humidity"))),false, 60, false);
+                    series_temperature.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("temp"))),false, 60, false);
+                    series_light.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("light"))),false, 60, false);
+                    series_pressure.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("pressure"))),false, 60, false);
                     graph.invalidate();
                     graph.getViewport().scrollToEnd();
                     vp.setMaxX(series_moisture.getHighestValueX());
@@ -114,8 +117,16 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
                 graph.addSeries(series_moisture);
                 graph.getGridLabelRenderer().setVerticalAxisTitle("moisture %");
                 graph.getGridLabelRenderer().setHorizontalAxisTitle("time");
-                graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getApplicationContext()));
-                graph.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
+            }
+        });
+        graph.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter() {
+            @Override
+            public String formatLabel(double value, boolean isValueX) {
+                if (isValueX) {
+                    Format formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    return formatter.format(value);
+                }
+                return super.formatLabel(value, isValueX);
             }
         });
     }
@@ -211,13 +222,14 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
                         for (DataSnapshot element : task.getResult().getChildren()) {
                             HashMap<String, String> result = (HashMap<String, String>) element.getValue();
                             Log.i("result", String.valueOf(result));
-                            Log.i("key", element.getKey());
-
-                            series_moisture.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("moisture"))),false, 60, false);
-                            series_humidity.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("humidity"))),false, 60, false);
-                            series_temperature.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("temp"))),false, 60, false);
-                            series_light.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("light"))),false, 60, false);
-                            series_pressure.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("pressure"))),false, 60, false);
+                            Log.i("unixtime", Long.valueOf(element.getKey()).toString());
+                            Date currentDate=new Date(Long.valueOf(element.getKey())*1000);
+                            Log.i("date", String.valueOf(currentDate));
+                            series_moisture.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("moisture"))),false, 60, false);
+                            series_humidity.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("humidity"))),false, 60, false);
+                            series_temperature.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("temp"))),false, 60, false);
+                            series_light.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("light"))),false, 60, false);
+                            series_pressure.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("pressure"))),false, 60, false);
                             graph.invalidate();
                             graph.getViewport().scrollToEnd();
                             vp.setMaxX(series_moisture.getHighestValueX());
@@ -226,9 +238,16 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
                         }
                         graph.removeAllSeries();
                         addchart();
-                        //graph.getGridLabelRenderer().setHumanRounding(false);
-                        graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getApplicationContext()));
-                        graph.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
+                        graph.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter() {
+                            @Override
+                            public String formatLabel(double value, boolean isValueX) {
+                                if (isValueX) {
+                                    Format formatter = new SimpleDateFormat("HH:mm:ss");
+                                    return formatter.format(value);
+                                }
+                                return super.formatLabel(value, isValueX);
+                            }
+                        });
                     }
                 });
                 break;
@@ -243,12 +262,12 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
                             HashMap<String, String> result = (HashMap<String, String>) element.getValue();
                             Log.i("result", String.valueOf(result));
                             Log.i("key", element.getKey());
-
-                            series_moisture.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("moisture"))),false, 360, false);
-                            series_humidity.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("humidity"))),false, 360, false);
-                            series_temperature.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("temp"))),false, 360, false);
-                            series_light.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("light"))),false, 360, false);
-                            series_pressure.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("pressure"))),false, 360, false);
+                            Date currentDate=new Date(Long.valueOf(element.getKey())*1000);
+                            series_moisture.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("moisture"))),false, 360, false);
+                            series_humidity.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("humidity"))),false, 360, false);
+                            series_temperature.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("temp"))),false, 360, false);
+                            series_light.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("light"))),false, 360, false);
+                            series_pressure.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("pressure"))),false, 360, false);
                             graph.invalidate();
                             graph.getViewport().scrollToEnd();
                             vp.setMaxX(series_moisture.getHighestValueX());
@@ -257,9 +276,16 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
                         }
                         graph.removeAllSeries();
                         addchart();
-                        //graph.getGridLabelRenderer().setHumanRounding(false);
-                        graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getApplicationContext()));
-                        graph.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
+                        graph.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter() {
+                            @Override
+                            public String formatLabel(double value, boolean isValueX) {
+                                if (isValueX) {
+                                    Format formatter = new SimpleDateFormat("HH:mm:ss");
+                                    return formatter.format(value);
+                                }
+                                return super.formatLabel(value, isValueX);
+                            }
+                        });
                     }
                 });
                 break;
@@ -274,12 +300,13 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
                             HashMap<String, String> result = (HashMap<String, String>) element.getValue();
                             Log.i("result", String.valueOf(result));
                             Log.i("key", element.getKey());
+                            Date currentDate=new Date(Long.valueOf(element.getKey())*1000);
 
-                            series_moisture.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("moisture"))),false, 1440, false);
-                            series_humidity.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("humidity"))),false, 1440, false);
-                            series_temperature.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("temp"))),false, 1440, false);
-                            series_light.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("light"))),false, 1440, false);
-                            series_pressure.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("pressure"))),false, 1440, false);
+                            series_moisture.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("moisture"))),false, 1440, false);
+                            series_humidity.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("humidity"))),false, 1440, false);
+                            series_temperature.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("temp"))),false, 1440, false);
+                            series_light.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("light"))),false, 1440, false);
+                            series_pressure.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("pressure"))),false, 1440, false);
                             graph.invalidate();
                             graph.getViewport().scrollToEnd();
                             vp.setMaxX(series_moisture.getHighestValueX());
@@ -288,9 +315,16 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
                         }
                         graph.removeAllSeries();
                         addchart();
-                        //graph.getGridLabelRenderer().setHumanRounding(false);
-                        graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getApplicationContext()));
-                        graph.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
+                        graph.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter() {
+                            @Override
+                            public String formatLabel(double value, boolean isValueX) {
+                                if (isValueX) {
+                                    Format formatter = new SimpleDateFormat("HH:mm:ss");
+                                    return formatter.format(value);
+                                }
+                                return super.formatLabel(value, isValueX);
+                            }
+                        });
                     }
                 });
                 break;
@@ -305,12 +339,13 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
                             HashMap<String, String> result = (HashMap<String, String>) element.getValue();
                             Log.i("result", String.valueOf(result));
                             Log.i("key", element.getKey());
+                            Date currentDate=new Date(Long.valueOf(element.getKey())*1000);
 
-                            series_moisture.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("moisture"))),false, 10080, false);
-                            series_humidity.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("humidity"))),false, 10080, false);
-                            series_temperature.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("temp"))),false, 10080, false);
-                            series_light.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("light"))),false, 10080, false);
-                            series_pressure.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("pressure"))),false, 10080, false);
+                            series_moisture.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("moisture"))),false, 10080, false);
+                            series_humidity.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("humidity"))),false, 10080, false);
+                            series_temperature.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("temp"))),false, 10080, false);
+                            series_light.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("light"))),false, 10080, false);
+                            series_pressure.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("pressure"))),false, 10080, false);
                             graph.invalidate();
                             graph.getViewport().scrollToEnd();
                             vp.setMaxX(series_moisture.getHighestValueX());
@@ -319,9 +354,16 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
                         }
                         graph.removeAllSeries();
                         addchart();
-                        //graph.getGridLabelRenderer().setHumanRounding(false);
-                        graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getApplicationContext()));
-                        graph.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
+                        graph.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter() {
+                            @Override
+                            public String formatLabel(double value, boolean isValueX) {
+                                if (isValueX) {
+                                    Format formatter = new SimpleDateFormat("dd-MM-yyyy");
+                                    return formatter.format(value);
+                                }
+                                return super.formatLabel(value, isValueX);
+                            }
+                        });
                     }
                 });
                 break;
@@ -336,12 +378,13 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
                             HashMap<String, String> result = (HashMap<String, String>) element.getValue();
                             Log.i("result", String.valueOf(result));
                             Log.i("key", element.getKey());
+                            Date currentDate=new Date(Long.valueOf(element.getKey())*1000);
 
-                            series_moisture.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("moisture"))),false, 43800, false);
-                            series_humidity.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("humidity"))),false, 43800, false);
-                            series_temperature.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("temp"))),false, 43800, false);
-                            series_light.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("light"))),false, 43800, false);
-                            series_pressure.appendData(new DataPoint(new Date((long) Double.parseDouble(element.getKey())), Double.parseDouble(result.get("pressure"))),false, 43800, false);
+                            series_moisture.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("moisture"))),false, 43800, false);
+                            series_humidity.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("humidity"))),false, 43800, false);
+                            series_temperature.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("temp"))),false, 43800, false);
+                            series_light.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("light"))),false, 43800, false);
+                            series_pressure.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("pressure"))),false, 43800, false);
                             graph.invalidate();
                             graph.getViewport().scrollToEnd();
                             vp.setMaxX(series_moisture.getHighestValueX());
@@ -350,9 +393,16 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
                         }
                         graph.removeAllSeries();
                         addchart();
-                        //graph.getGridLabelRenderer().setHumanRounding(false);
-                        graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getApplicationContext()));
-                        graph.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
+                        graph.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter() {
+                            @Override
+                            public String formatLabel(double value, boolean isValueX) {
+                                if (isValueX) {
+                                    Format formatter = new SimpleDateFormat("dd-MM-yyyy");
+                                    return formatter.format(value);
+                                }
+                                return super.formatLabel(value, isValueX);
+                            }
+                        });
                     }
                 });
                 break;
