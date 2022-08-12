@@ -45,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
         Toolbar myToolbar =findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
         myToolbar.showContextMenu();
+        myToolbar.setLogo(R.mipmap.splashscreen_round);
+        getSupportActionBar().setDisplayUseLogoEnabled(true);
         myToolbar.setOnMenuItemClickListener(item -> {
             if(item.getItemId()==R.id.action_favorite){
                 Intent intent = new Intent(MainActivity.this, ChartActivity.class);
