@@ -45,4 +45,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/SmartGardenTitleApp"
         app:layout_constraintVertical_bias="0.767" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="364dp"
+        android:layout_height="268dp"
+        app:layout_constraintBottom_toTopOf="@+id/progressBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/SmartGardenApp"
+        app:srcCompat="@mipmap/splashscreen_foreground" />
 </androidx.constraintlayout.widget.ConstraintLayout>
