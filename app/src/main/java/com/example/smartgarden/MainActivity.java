@@ -1,6 +1,7 @@
 package com.example.smartgarden;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -46,6 +47,9 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(myToolbar);
         myToolbar.showContextMenu();
         myToolbar.setLogo(R.mipmap.splashscreen_round);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        myToolbar.setTitle(" Smart Garden");
+        myToolbar.setTitleTextColor(Color.WHITE);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
         myToolbar.setOnMenuItemClickListener(item -> {
             if(item.getItemId()==R.id.action_favorite){
@@ -157,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
                 lightValue.setText(result.get("light") +"Lux");
                 tempValue.setText(result.get("temp") +"°C");
                 pressureValue.setText(result.get("pressure") +"kPa");
-                ZambrettiWeatherForecating(Double.valueOf(result.get("pressure")),Float.valueOf(snapshot.getKey()),result);
+                ZambrettiWeatherForecasting(Double.valueOf(result.get("pressure")),result);
             }
 
             @Override
@@ -182,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
     Boolean pastPressure=false;
-    private void ZambrettiWeatherForecating(Double pressure,Float key,HashMap<String, String> result) {
+    private void ZambrettiWeatherForecasting(Double pressure,HashMap<String, String> currentValue) {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("SmartGarden").child("SensorsData");
         databaseReference.limitToLast(120).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
@@ -197,10 +201,12 @@ public class MainActivity extends AppCompatActivity {
                             Float oldPressure = Float.parseFloat(result.get("pressure"));
                             Log.d("oldPressure", String.valueOf(oldPressure));
                             Log.d("oldPressure", element.getKey());
+                            Log.d("Pressure", "value ->" + pressure);
                             Integer forecast;
                             String weatherForecast = null;
                             if (oldPressure - pressure > 0.16) {
                                 forecast = (int) Math.round(127 - 0.12 * pressure * 10);
+                                Log.d("Forecast", "value" + forecast);
                                 switch (forecast) {
                                     case 1:
                                         weatherForecast = "Settled fine";
@@ -232,6 +238,7 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             } else if (pressure - oldPressure > 0.16) {
                                 forecast = (int) Math.round(185 - 0.16 * pressure * 10);
+                                Log.d("Forecast", "value" + forecast);
                                 switch (forecast) {
                                     case 20:
                                         weatherForecast = "Settled fine";
@@ -275,6 +282,7 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             } else {
                                 forecast = (int) Math.round(144 - 0.13 * pressure * 10);
+                                Log.d("Forecast", "value" + forecast);
                                 switch (forecast) {
                                     case 10:
                                         weatherForecast = "Settled fine";
@@ -309,14 +317,14 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             }
                             weatherReport.setText(weatherForecast);
-                            if (Float.parseFloat(result.get("humidity")) >= 60) {
-                                weatherReport.append("\n High humidity,better turn on the fan!");
+                            if (Float.parseFloat(currentValue.get("humidity")) >= 60) {
+                                weatherReport.append("\n High humidity, better turn on the fan!");
                             }
-                            if (Float.parseFloat(result.get("light")) <= 100) {
-                                weatherReport.append("\n Low Light,better turn on the lights!");
+                            if (Float.parseFloat(currentValue.get("light")) <= 100) {
+                                weatherReport.append("\n Low Light, better turn on the lights!");
                             }
-                            if (Float.parseFloat(result.get("moisture")) <= 10) {
-                                weatherReport.append("\n Low Moisture,better turn on the water pump!");
+                            if (Float.parseFloat(currentValue.get("moisture")) <= 10) {
+                                weatherReport.append("\n Low Moisture, better turn on the water pump!");
                             }
                             pastPressure=true;
                         }

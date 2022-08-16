@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:background="@color/green_700"
         android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        android:theme="@style/Theme.SmartGarden"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -20,16 +20,16 @@
         android:id="@+id/textView9"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/michroma"
         android:text="@string/graph_charts"
         android:textAlignment="center"
         android:textColor="@color/black"
-        android:textSize="38sp"
-        app:layout_constraintBottom_toTopOf="@+id/radioGroup"
+        android:textSize="30sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/my_toolbar2"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toBottomOf="@+id/my_toolbar2" />
 
     <RadioGroup
         android:id="@+id/radioGroup"
@@ -39,48 +39,53 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/my_toolbar2"
-        app:layout_constraintVertical_bias="0.121">
+        app:layout_constraintTop_toBottomOf="@+id/textView9"
+        app:layout_constraintVertical_bias="0.0">
 
         <RadioButton
             android:id="@+id/radioButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/michroma"
             android:onClick="checkChart"
             android:text="@string/moisture"
-            android:textSize="38sp" />
+            android:textSize="24dp" />
 
         <RadioButton
             android:id="@+id/radioButton2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/michroma"
             android:onClick="checkChart"
             android:text="@string/humidity"
-            android:textSize="38sp" />
+            android:textSize="24dp" />
 
         <RadioButton
             android:id="@+id/radioButton3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/michroma"
             android:onClick="checkChart"
             android:text="@string/temperature"
-            android:textSize="38sp" />
+            android:textSize="24dp" />
 
         <RadioButton
             android:id="@+id/radioButton4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/michroma"
             android:onClick="checkChart"
             android:text="@string/light"
-            android:textSize="38sp" />
+            android:textSize="24dp" />
 
         <RadioButton
             android:id="@+id/radioButton5"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/michroma"
             android:onClick="checkChart"
             android:text="@string/pressure"
-            android:textSize="38sp" />
+            android:textSize="24dp" />
 
     </RadioGroup>
 

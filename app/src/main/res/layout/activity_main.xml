@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:background="@color/green_700"
         android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        android:theme="@style/Theme.SmartGarden"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -22,11 +22,12 @@
         android:id="@+id/textViewHome"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/michroma"
         android:text="@string/Title"
         android:textAlignment="center"
         android:textColor="@color/green_700"
-        android:textSize="20sp"
-        android:textStyle="italic"
+        android:textSize="16dp"
+        android:textStyle="bold|italic"
         app:layout_constraintBottom_toTopOf="@+id/tableLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
@@ -61,7 +62,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/temperature"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/black"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/textViewTemp"
@@ -87,7 +89,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/pressure"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/black"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/textViewPressure2"
@@ -122,7 +125,8 @@
                     android:layout_marginBottom="20dp"
                     android:text="@string/light"
                     android:textColor="@color/black"
-                    android:textSize="16dp" />
+                    android:textSize="16dp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/textViewLight"
@@ -152,7 +156,8 @@
                     android:layout_marginBottom="20dp"
                     android:text="@string/cooling_fan"
                     android:textColor="@color/black"
-                    android:textSize="16dp" />
+                    android:textSize="16dp"
+                    android:textStyle="bold" />
 
                 <Switch
                     android:id="@+id/switch3"
@@ -189,7 +194,8 @@
                     android:layout_marginBottom="20dp"
                     android:text="@string/waterpump"
                     android:textColor="@color/black"
-                    android:textSize="16dp" />
+                    android:textSize="16dp"
+                    android:textStyle="bold" />
 
                 <Switch
                     android:id="@+id/switch4"
@@ -219,7 +225,8 @@
                     android:layout_marginBottom="20dp"
                     android:text="@string/artificial_light"
                     android:textColor="@color/black"
-                    android:textSize="16dp" />
+                    android:textSize="16dp"
+                    android:textStyle="bold" />
 
                 <Switch
                     android:id="@+id/switch2"
@@ -257,7 +264,8 @@
                     android:layout_marginBottom="20dp"
                     android:text="@string/moisture"
                     android:textColor="@color/black"
-                    android:textSize="16dp" />
+                    android:textSize="16dp"
+                    android:textStyle="bold" />
 
                 <ProgressBar
                     android:id="@+id/progress_bar_moist"
@@ -302,7 +310,8 @@
                     android:layout_marginBottom="20dp"
                     android:text="@string/humidity"
                     android:textColor="@color/black"
-                    android:textSize="16dp" />
+                    android:textSize="16dp"
+                    android:textStyle="bold" />
 
                 <ProgressBar
                     android:id="@+id/progress_bar_humidity"
