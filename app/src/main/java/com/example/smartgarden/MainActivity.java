@@ -144,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void startVerifyStatusValues(){
         DatabaseReference databaseReference = database.child("SensorsData");
-        databaseReference.addChildEventListener(new ChildEventListener() {
+        databaseReference.limitToLast(1).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 Log.d("Datasnapshot: ", String.valueOf(snapshot.getValue()));

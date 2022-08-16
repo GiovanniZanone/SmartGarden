@@ -99,8 +99,6 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
                 Log.d("firebase", String.valueOf(task.getResult().getValue()));
                 for (DataSnapshot element : task.getResult().getChildren()) {
                     HashMap<String, String> result = (HashMap<String, String>) element.getValue();
-                    Log.i("result", String.valueOf(result));
-                    Log.i("key", element.getKey());
                     Date currentDate=new Date(Long.valueOf(element.getKey())*1000);
                     series_moisture.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("moisture"))),false, 60, false);
                     series_humidity.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("humidity"))),false, 60, false);
@@ -123,7 +121,7 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
             @Override
             public String formatLabel(double value, boolean isValueX) {
                 if (isValueX) {
-                    Format formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    Format formatter = new SimpleDateFormat("HH:mm:ss");
                     return formatter.format(value);
                 }
                 return super.formatLabel(value, isValueX);
@@ -185,9 +183,8 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
 
     private void light_chart() {
         graph.removeAllSeries();
-        graph.getGridLabelRenderer().setVerticalAxisTitle("lihgt in Lux");
+        graph.getGridLabelRenderer().setVerticalAxisTitle("light in Lux");
         graph.addSeries(series_light);
-
     }
 
     private void pressure_chart() {
@@ -218,13 +215,9 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
                         Log.e("firebase", "Error getting data", task.getException());
                     }
                     else {
-                        Log.d("firebase", String.valueOf(task.getResult().getValue()));
                         for (DataSnapshot element : task.getResult().getChildren()) {
                             HashMap<String, String> result = (HashMap<String, String>) element.getValue();
-                            Log.i("result", String.valueOf(result));
-                            Log.i("unixtime", Long.valueOf(element.getKey()).toString());
                             Date currentDate=new Date(Long.valueOf(element.getKey())*1000);
-                            Log.i("date", String.valueOf(currentDate));
                             series_moisture.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("moisture"))),false, 60, false);
                             series_humidity.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("humidity"))),false, 60, false);
                             series_temperature.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("temp"))),false, 60, false);
@@ -257,11 +250,8 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
                         Log.e("firebase", "Error getting data", task.getException());
                     }
                     else {
-                        Log.d("firebase", String.valueOf(task.getResult().getValue()));
                         for (DataSnapshot element : task.getResult().getChildren()) {
                             HashMap<String, String> result = (HashMap<String, String>) element.getValue();
-                            Log.i("result", String.valueOf(result));
-                            Log.i("key", element.getKey());
                             Date currentDate=new Date(Long.valueOf(element.getKey())*1000);
                             series_moisture.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("moisture"))),false, 360, false);
                             series_humidity.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("humidity"))),false, 360, false);
@@ -295,13 +285,9 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
                         Log.e("firebase", "Error getting data", task.getException());
                     }
                     else {
-                        Log.d("firebase", String.valueOf(task.getResult().getValue()));
                         for (DataSnapshot element : task.getResult().getChildren()) {
                             HashMap<String, String> result = (HashMap<String, String>) element.getValue();
-                            Log.i("result", String.valueOf(result));
-                            Log.i("key", element.getKey());
                             Date currentDate=new Date(Long.valueOf(element.getKey())*1000);
-
                             series_moisture.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("moisture"))),false, 1440, false);
                             series_humidity.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("humidity"))),false, 1440, false);
                             series_temperature.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("temp"))),false, 1440, false);
@@ -334,13 +320,9 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
                         Log.e("firebase", "Error getting data", task.getException());
                     }
                     else {
-                        Log.d("firebase", String.valueOf(task.getResult().getValue()));
                         for (DataSnapshot element : task.getResult().getChildren()) {
                             HashMap<String, String> result = (HashMap<String, String>) element.getValue();
-                            Log.i("result", String.valueOf(result));
-                            Log.i("key", element.getKey());
                             Date currentDate=new Date(Long.valueOf(element.getKey())*1000);
-
                             series_moisture.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("moisture"))),false, 10080, false);
                             series_humidity.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("humidity"))),false, 10080, false);
                             series_temperature.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("temp"))),false, 10080, false);
@@ -373,13 +355,9 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
                         Log.e("firebase", "Error getting data", task.getException());
                     }
                     else {
-                        Log.d("firebase", String.valueOf(task.getResult().getValue()));
                         for (DataSnapshot element : task.getResult().getChildren()) {
                             HashMap<String, String> result = (HashMap<String, String>) element.getValue();
-                            Log.i("result", String.valueOf(result));
-                            Log.i("key", element.getKey());
                             Date currentDate=new Date(Long.valueOf(element.getKey())*1000);
-
                             series_moisture.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("moisture"))),false, 43800, false);
                             series_humidity.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("humidity"))),false, 43800, false);
                             series_temperature.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("temp"))),false, 43800, false);
@@ -428,5 +406,11 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
 
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        finish();
     }
 }
