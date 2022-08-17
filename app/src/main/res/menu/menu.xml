@@ -4,7 +4,7 @@
         <!-- "Mark Favorite", should appear as action button if possible -->
         <item
             android:id="@+id/action_favorite"
-            android:icon="@drawable/ic_chart"
+            android:icon="@drawable/ic_chart_menu"
             android:title="@string/chart"
             android:visible="true"
             app:showAsAction="always" />

@@ -46,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
         Toolbar myToolbar =findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
         myToolbar.showContextMenu();
-        myToolbar.setLogo(R.mipmap.splashscreen_round);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         myToolbar.setTitle(" Smart Garden");
         myToolbar.setTitleTextColor(Color.WHITE);
