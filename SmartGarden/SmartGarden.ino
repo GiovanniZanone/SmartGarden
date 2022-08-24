@@ -2,10 +2,11 @@
 #include <Arduino_MKRIoTCarrier.h>
 #include <ArduinoJson.h>
 
-#define FIREBASE_HOST "smart-garden-51893-default-rtdb.europe-west1.firebasedatabase.app"
-#define FIREBASE_AUTH "C7ygfjzSv156ealnMhjTWx67fbLxZQoubNlEWMrU"
-#define WIFI_SSID "Telecom-89544077"
-#define WIFI_PASSWORD "Z8QAhtQY5BOpE0YMbZkGeVB8"
+//fill with your credentials
+#define FIREBASE_HOST ""
+#define FIREBASE_AUTH ""
+#define WIFI_SSID ""
+#define WIFI_PASSWORD ""
 
 //Variables declaration
 MKRIoTCarrier carrier;
