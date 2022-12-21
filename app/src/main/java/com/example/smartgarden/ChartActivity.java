@@ -1,6 +1,7 @@
 package com.example.smartgarden;
 
 import android.os.Bundle;
+
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -91,32 +92,6 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
 
         series_pressure = new LineGraphSeries<DataPoint>();
 
-        DatabaseReference databaseReference = mPostReference.child("SensorsData");
-        databaseReference.limitToLast(60).get().addOnCompleteListener(task -> {
-            if (!task.isSuccessful())
-                Log.e("firebase", "Error getting data", task.getException());
-            else {
-                Log.d("firebase", String.valueOf(task.getResult().getValue()));
-                for (DataSnapshot element : task.getResult().getChildren()) {
-                    HashMap<String, String> result = (HashMap<String, String>) element.getValue();
-                    Date currentDate=new Date(Long.valueOf(element.getKey())*1000);
-                    series_moisture.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("moisture"))),false, 60, false);
-                    series_humidity.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("humidity"))),false, 60, false);
-                    series_temperature.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("temp"))),false, 60, false);
-                    series_light.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("light"))),false, 60, false);
-                    series_pressure.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("pressure"))),false, 60, false);
-                    graph.invalidate();
-                    graph.getViewport().scrollToEnd();
-                    vp.setMaxX(series_moisture.getHighestValueX());
-                    vp.setMinX(series_moisture.getLowestValueX());
-
-                }
-                graph.removeAllSeries();
-                graph.addSeries(series_moisture);
-                graph.getGridLabelRenderer().setVerticalAxisTitle("moisture %");
-                graph.getGridLabelRenderer().setHorizontalAxisTitle("time");
-            }
-        });
         graph.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter() {
             @Override
             public String formatLabel(double value, boolean isValueX) {
@@ -218,11 +193,11 @@ public class ChartActivity extends AppCompatActivity implements AdapterView.OnIt
                         for (DataSnapshot element : task.getResult().getChildren()) {
                             HashMap<String, String> result = (HashMap<String, String>) element.getValue();
                             Date currentDate=new Date(Long.valueOf(element.getKey())*1000);
-                            series_moisture.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("moisture"))),false, 60, false);
-                            series_humidity.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("humidity"))),false, 60, false);
-                            series_temperature.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("temp"))),false, 60, false);
-                            series_light.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("light"))),false, 60, false);
-                            series_pressure.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("pressure"))),false, 60, false);
+                            series_moisture.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("moisture"))),true, 60, false);
+                            series_humidity.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("humidity"))),true, 60, false);
+                            series_temperature.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("temp"))),true, 60, false);
+                            series_light.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("light"))),true, 60, false);
+                            series_pressure.appendData(new DataPoint(currentDate, Double.parseDouble(result.get("pressure"))),true, 60, false);
                             graph.invalidate();
                             graph.getViewport().scrollToEnd();
                             vp.setMaxX(series_moisture.getHighestValueX());
